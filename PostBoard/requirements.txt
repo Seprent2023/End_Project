@@ -1,0 +1,6 @@
+django
+django-js-asset
+django-filter
+django_extensions
+django-ckeditor
+
