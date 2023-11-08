@@ -36,7 +36,7 @@ class Posts(models.Model):
         (leather_workers, 'Кожевники'), (potion_masters, 'Зельевары'), (enchanters, 'Мастера заклинаний')
     ]
 
-    type_post = models.CharField(max_length=2, choices=TYPE)
+    type_post = models.CharField(max_length=2, choices=TYPE, default='MR')
     time_in = models.DateTimeField(auto_now_add=True)
     headline = models.CharField(max_length=128)
     text = RichTextUploadingField()
@@ -49,7 +49,7 @@ class Posts(models.Model):
 
 class Response(models.Model):
     time_in = models.DateTimeField(auto_now_add=True)
-    text = models.TextField
+    text = models.TextField(default='Отзыв')
     res_user = models.ForeignKey(User, on_delete=models.CASCADE)
     res_post = models.ForeignKey(Posts, on_delete=models.CASCADE)
     status = models.BooleanField(default=False)

@@ -5,4 +5,5 @@ from .models import Posts
 class PostForm(forms.ModelForm):
     class Meta:
         model = Posts
-        fields = ['to_reg_user', 'category', 'headline', 'text']
+        fields = ['category', 'headline', 'text']
+        widgets = {'to_reg_user': forms.HiddenInput()}

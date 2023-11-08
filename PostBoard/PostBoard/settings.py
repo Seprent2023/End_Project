@@ -14,7 +14,9 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+SETTINGS_PATH = os.path.realpath(os.path.dirname(__file__))
+CKEDITOR_UPLOAD_PATH = 'C:/Users/Win10_Game_OS/PycharmProjects/PostBoard/venv/Lib/site-packages/ckeditor/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -25,7 +27,7 @@ SECRET_KEY = 'django-insecure-isyoj^zws1(qkv*@eqz31uo$vg%61%e163xx12_zzfba7h#v2g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 # Application definition
@@ -42,6 +44,8 @@ INSTALLED_APPS = [
     'PostBoard_main',
     'Accounts',
     'django_filters',
+    'ckeditor',
+    'ckeditor_uploader',
 ]
 
 SITE_ID = 1
