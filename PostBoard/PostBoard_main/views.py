@@ -6,7 +6,7 @@ from datetime import datetime
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
 )
-from .models import Category, Posts, RegUsers, Subscriptions
+from .models import Category, Posts, Subscriptions, RegUsers
 from .filters import PostFilter
 from .forms import PostForm
 from django.contrib.auth.models import User, Group
@@ -262,6 +262,9 @@ class PostDetail(DetailView):
 #     context_object_name = 'enchanters'
 
 
+
+
+
 class PostCreate(CreateView):
     permission_required = ('PostBoard_main.add_post')
     raise_exception = True
@@ -269,21 +272,23 @@ class PostCreate(CreateView):
     model = Posts
     template_name = 'post_create.html'
 
-    def form_valid(self, form):
+    # def form_valid(self, form):
+    #
+    #     news_detail = form.save(commit=False)
+    #     return super().form_valid(form)
 
-        news_detail = form.save(commit=False)
-        return super().form_valid(form)
-
-    def post_create(self, request):
+    def post_author(self, request):
         if request.method == 'POST':
-            form = PostForm(request.POST, initial={'to_reg_user': self.request.user})
-            if form.is_valid():
-                form.to_reg_user = self.request.user
-                form = form.save()
-                return redirect(f'/posts/post_detail/')
-            else:
+            # form = PostForm(request.POST or None)
+            form = PostForm(request.POST or None, initial={'to_reg_user': self.request.user.id})
+            if form.is_valid() :
+                f = form.save(commit=False)
+                f.reg_user = self.request.user.id
+                form.save()
+                return redirect(f'/posts/')
+            else :
                 return render(request, 'posts/post_create.html', {'form': form})
-        else:
+        else :
             form = PostForm()
             return render(request, 'posts/post_create.html', {'form': form})
 

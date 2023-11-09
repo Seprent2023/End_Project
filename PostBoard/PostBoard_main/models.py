@@ -41,7 +41,7 @@ class Posts(models.Model):
     headline = models.CharField(max_length=128)
     text = RichTextUploadingField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category')
-    to_reg_user = models.ForeignKey(RegUsers, on_delete=models.CASCADE)
+    to_reg_user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def get_absolute_url(self):
         return reverse('post_detail', args=[str(self.id)])
