@@ -277,13 +277,13 @@ class PostCreate(CreateView):
     #     news_detail = form.save(commit=False)
     #     return super().form_valid(form)
 
-    def post_author(self, request):
+    def post(self, request, **kwargs) :
         if request.method == 'POST':
-            # form = PostForm(request.POST or None)
-            form = PostForm(request.POST or None, initial={'to_reg_user': self.request.user.id})
+            form = PostForm(request.POST or None)
+            # form = PostForm(request.POST or None, initial={'to_reg_user': self.request.user.id})
             if form.is_valid() :
                 f = form.save(commit=False)
-                f.reg_user = self.request.user.id
+                f.to_reg_user_id = self.request.user.id
                 form.save()
                 return redirect(f'/posts/')
             else :
