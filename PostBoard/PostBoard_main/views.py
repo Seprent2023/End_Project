@@ -1,14 +1,18 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
+from django.contrib import auth
 from django.urls import reverse_lazy
 from datetime import datetime
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
 )
-from .models import Category, Posts, Subscriptions, RegUsers
-from .filters import PostFilter
-from .forms import PostForm
+from .models import Posts, Response
+from .filters import PostFilter, ResponseFilter
+from .forms import PostForm, ResponseForm
+from django.views.decorators.http import require_http_methods
+from django.core.exceptions import ObjectDoesNotExist
+from django.template.context_processors import csrf
 from django.contrib.auth.models import User, Group
 from django.db.models import Exists, OuterRef
 from django.views.decorators.csrf import csrf_protect
@@ -34,146 +38,6 @@ class PostsList(ListView):
         return context
 
 
-# class TanksList(ListView):
-#     raise_exception = True
-#     model = Posts
-#     ordering = '-time_in'
-#     template_name = 'tanks.html'
-#     context_object_name = 'tanks'
-#     paginate_by = 20
-#
-#     def get_context_data(self, *, object_list=None, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['tanks'] = Posts.objects.filter(type_post='TK')
-#         return context
-#
-#
-# class HealersList(ListView):
-#     raise_exception = True
-#     model = Posts
-#     ordering = '-time_in'
-#     template_name = 'healers.html'
-#     context_object_name = 'healers'
-#     paginate_by = 20
-#
-#     def get_context_data(self, *, object_list=None, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['healers'] = Posts.objects.filter(type_post='HL')
-#         return context
-#
-#
-# class DDList(ListView):
-#     raise_exception = True
-#     model = Posts
-#     ordering = '-time_in'
-#     template_name = 'DD.html'
-#     context_object_name = 'DD'
-#     paginate_by = 20
-#
-#     def get_context_data(self, *, object_list=None, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['DD'] = Posts.objects.filter(type_post='DD')
-#         return context
-#
-#
-# class MerchantsList(ListView):
-#     raise_exception = True
-#     model = Posts
-#     ordering = '-time_in'
-#     template_name = 'merchants.html'
-#     context_object_name = 'merchants'
-#     paginate_by = 20
-#
-#     def get_context_data(self, *, object_list=None, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['merchants'] = Posts.objects.filter(type_post='MR')
-#         return context
-#
-#
-# class GMList(ListView):
-#     raise_exception = True
-#     model = Posts
-#     ordering = '-time_in'
-#     template_name = 'GM.html'
-#     context_object_name = 'GM'
-#     paginate_by = 20
-#
-#     def get_context_data(self, *, object_list=None, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['GM'] = Posts.objects.filter(type_post='GM')
-#         return context
-#
-#
-# class QuestGiveList(ListView):
-#     raise_exception = True
-#     model = Posts
-#     ordering = '-time_in'
-#     template_name = 'quest.html'
-#     context_object_name = 'quest'
-#     paginate_by = 20
-#
-#     def get_context_data(self, *, object_list=None, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['quest'] = Posts.objects.filter(type_post='QG')
-#         return context
-#
-#
-# class SmithsList(ListView):
-#     raise_exception = True
-#     model = Posts
-#     ordering = '-time_in'
-#     template_name = 'smiths.html'
-#     context_object_name = 'smiths'
-#     paginate_by = 20
-#
-#     def get_context_data(self, *, object_list=None, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['smiths'] = Posts.objects.filter(type_post='SM')
-#         return context
-#
-#
-# class LeatherList(ListView):
-#     raise_exception = True
-#     model = Posts
-#     ordering = '-time_in'
-#     template_name = 'leather.html'
-#     context_object_name = 'leather'
-#     paginate_by = 20
-#
-#     def get_context_data(self, *, object_list=None, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['leather'] = Posts.objects.filter(type_post='LW')
-#         return context
-#
-#
-# class PotionList(ListView):
-#     raise_exception = True
-#     model = Posts
-#     ordering = '-time_in'
-#     template_name = 'potion.html'
-#     context_object_name = 'potion'
-#     paginate_by = 20
-#
-#     def get_context_data(self, *, object_list=None, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['potion'] = Posts.objects.filter(type_post='PM')
-#         return context
-#
-#
-# class EnchantersList(ListView):
-#     raise_exception = True
-#     model = Posts
-#     ordering = '-time_in'
-#     template_name = 'enchanters.html'
-#     context_object_name = 'enchanters'
-#     paginate_by = 20
-#
-#     def get_context_data(self, *, object_list=None, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['enchanters'] = Posts.objects.filter(type_post='EH')
-#         return context
-
-
 class SearchResults(ListView):
     raise_exception = True
     model = Posts
@@ -197,72 +61,54 @@ class PostDetail(DetailView):
     model = Posts
     template_name = 'post_detail.html'
     context_object_name = 'post'
+    response_form = ResponseForm
+
+    def post_detail(self, request, post, **kwargs):
+        post = get_object_or_404(Posts, id=self.kwargs['res_post'])
+        responses = post.reply.filter(active=True)
+
+        if request.method == 'POST':
+            response_form = ResponseForm(data=request.POST)
+            if response_form.is_valid():
+                new_response = response_form.save(commit=False)
+                new_response.post = post
+                new_response.save()
+        else:
+            response_form = ResponseForm()
+        return render(request, 'posts/post_detail.html', {'post': post, 'responses': responses, 'response_form': response_form})
+
+    # def get(self, request, **kwargs):
+    #     post = get_object_or_404(Posts, id=self.kwargs['post_id'])
+    #     context = {}
+    #     context.update(csrf(request))
+    #     user = auth.get_user(request)
+    #     context = {'responses': post.response_set.all().order_by('path'), 'next': post.get_absolute_url()}
+    #     if user.is_authenticated:
+    #         context['form'] = self.response_form
+    #     return render(template_name=self.template_name, context=context)
 
 
-# class HealersDetail(LoginRequiredMixin, DetailView):
-#     raise_exception = True
-#     model = Posts
-#     template_name = 'healers_detail.html'
-#     context_object_name = 'healers'
-#
-#
-# class DDDetail(LoginRequiredMixin, DetailView):
-#     raise_exception = True
-#     model = Posts
-#     template_name = 'DD_detail.html'
-#     context_object_name = 'DD'
-#
-#
-# class MerchantsDetail(LoginRequiredMixin, DetailView):
-#     raise_exception = True
-#     model = Posts
-#     template_name = 'merchants_detail.html'
-#     context_object_name = 'merchants'
-#
-#
-# class GMDetail(LoginRequiredMixin, DetailView):
-#     raise_exception = True
-#     model = Posts
-#     template_name = 'GM_detail.html'
-#     context_object_name = 'GM'
-#
-#
-# class QuestGiveDetail(LoginRequiredMixin, DetailView):
-#     raise_exception = True
-#     model = Posts
-#     template_name = 'quest_detail.html'
-#     context_object_name = 'quest'
-#
-#
-# class SmithsDetail(LoginRequiredMixin, DetailView):
-#     raise_exception = True
-#     model = Posts
-#     template_name = 'smiths_detail.html'
-#     context_object_name = 'smiths'
-#
-#
-# class LeatherDetail(LoginRequiredMixin, DetailView):
-#     raise_exception = True
-#     model = Posts
-#     template_name = 'leather_detail.html'
-#     context_object_name = 'leather'
-#
-#
-# class PotionDetail(LoginRequiredMixin, DetailView):
-#     raise_exception = True
-#     model = Posts
-#     template_name = 'potion_detail.html'
-#     context_object_name = 'potion'
-#
-#
-# class EnchantersDetail(LoginRequiredMixin, DetailView):
-#     raise_exception = True
-#     model = Posts
-#     template_name = 'enchanters_detail.html'
-#     context_object_name = 'enchanters'
+@require_http_methods(["POST"])
+def post_response(request, res_post):
+    form = ResponseForm(request.POST)
+    post = get_object_or_404(Posts, id=res_post)
 
+    if form.is_valid():
+        response = Response()
+        response.path = []
+        response.res_post = post
+        response.res_user = auth.get_user(request)
+        response.text = form.cleaned_data['text']
+        response.save()
+        try:
+            response.path.extend(Posts.objects.get(id=form.cleaned_data['parent_response']).path)
+            response.path.append(response.id)
+        except ObjectDoesNotExist:
+            response.path.append(response.id)
 
+        response.save()
 
+    return redirect(post.get_absolute_url())
 
 
 class PostCreate(CreateView):
@@ -272,16 +118,10 @@ class PostCreate(CreateView):
     model = Posts
     template_name = 'post_create.html'
 
-    # def form_valid(self, form):
-    #
-    #     news_detail = form.save(commit=False)
-    #     return super().form_valid(form)
-
-    def post(self, request, **kwargs) :
+    def post(self, request):
         if request.method == 'POST':
             form = PostForm(request.POST or None)
-            # form = PostForm(request.POST or None, initial={'to_reg_user': self.request.user.id})
-            if form.is_valid() :
+            if form.is_valid():
                 f = form.save(commit=False)
                 f.to_reg_user_id = self.request.user.id
                 form.save()
@@ -291,6 +131,30 @@ class PostCreate(CreateView):
         else :
             form = PostForm()
             return render(request, 'posts/post_create.html', {'form': form})
+
+
+class ResponseCreate(CreateView):
+    permission_required = ('PostBoard_main.add_response')
+    raise_exception = True
+    form_class = ResponseForm
+    model = Response
+    template_name = 'response_create.html'
+
+    def post(self, request, pk, **kwargs):
+        if request.method == 'POST':
+            form = ResponseForm(request.POST or None)
+            post_to_res = get_object_or_404(Posts, id=self.post.id)
+            if form.is_valid():
+                f = form.save(commit=False)
+                f.res_user_id = self.request.user.id
+                f.res_post_id = post_to_res
+                form.save()
+                return redirect(f'/posts/post_detail.html')
+            else:
+                return render(request, 'posts/response_create.html', {'form': form})
+        else:
+            form = ResponseForm()
+            return render(request, 'posts/response_create.html', {'form': form})
 
 
 class PostUpdate(UpdateView):

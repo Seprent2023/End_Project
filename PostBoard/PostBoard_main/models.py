@@ -49,10 +49,13 @@ class Posts(models.Model):
 
 class Response(models.Model):
     time_in = models.DateTimeField(auto_now_add=True)
-    text = models.TextField(default='Отзыв')
-    res_user = models.ForeignKey(User, on_delete=models.CASCADE)
-    res_post = models.ForeignKey(Posts, on_delete=models.CASCADE)
+    text = models.TextField()
+    res_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reply_user')
+    res_post = models.ForeignKey(Posts, on_delete=models.CASCADE, related_name='reply')
     status = models.BooleanField(default=False)
+
+    def __str__(self):
+        return 'Response by {} on {}'. format(self.res_user, self.res_post)
 
 
 class Subscriptions(models.Model):

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% extends 'flatpages/default.html' %}
+{% load bootstrap3 %}
 
 <html lang="en">
 <head>
@@ -9,12 +10,56 @@
         Post_detail
         {% endblock title%}
     </title>
+    <script src="js/jquery-3.7.1.min.js"></script>
 </head>
 <body>
 {% block content %}
     <h1>{{ post.headline }}</h1>
     <h5>{{ post.time_in|date:'d M Y' }}</h5>
+    <h5>{{ post.to_reg_user }}</h5>
     <hr>
+    <h5>{{ post.text }}</h5>
+    <hr>
+<!--    <h2>Отклики</h2>-->
+    {% with responses.count as total_responses %}
+        <h2>
+            {{ total_responses }} Откликов {{ total_responses|pluralize }}
+        </h2>
+    {% endwith %}
+    {% for response in responses %}
+        <div class="response">
+            <p class="info">
+                Response {{ forloop.counter }} by {{ response.res_user }}
+            </p>
+            {{ response.text|linebreaks }}
+        </div>
+    {% empty %}
+        <p>Нет откликов</p>
+    {% endfor %}
+    {% if new_response %}
+        <h2>Отклик добавлен</h2>
+    {% else %}
+        <h2>Добавить отклик</h2>
+
+    <button>
+        <a class="nav-link" href="{% url 'add_response' pk=post.id %}">
+            <h4><strong>Добавить отклик</strong></h4>
+        </a>
+    </button>
+    {% endif %}
+
+    <a href="{% url 'posts' %}"> К постам </a>
+    {% if post.to_reg_user_id == user.id %}
+        <br>
+        {% if perms.PostBoard.change_post %}
+        <a href="{% url 'post_edit' pk=post.id %}"> Редактировать </a>
+        {% endif %}
+        {% if perms.PostBoard.delete_post %}
+        <a href="{% url 'post_delete' pk=post.id %}"> Удалить </a>
+        {% endif %}
+        </br>
+    {% endif %}
+
 {% endblock content%}
 </body>
 </html>

@@ -1,7 +1,8 @@
 from django.urls import path
+from . import views
 
 from .views import (
-	PostsList, PostDetail, SearchResults, PostCreate, PostUpdate, PostDelete,
+	PostsList, PostDetail, SearchResults, PostCreate, PostUpdate, PostDelete, ResponseCreate
 )
 
 urlpatterns = [
@@ -11,5 +12,9 @@ urlpatterns = [
 	path('create/', PostCreate.as_view(), name='post_create'),
 	path('<int:pk>/edit', PostUpdate.as_view(), name='post_edit'),
 	path('<int:pk>/delete', PostDelete.as_view(), name='post_delete'),
+	# path('response/<int:pk>', views.post_response, name='add_response'),
+	# re_path(r'^(?P<res_post>[0-9]+/$)', views.PostDetail.as_view, name='post'),
+	# re_path(r'^response/(?P<res_post>[0-9]+/$)', views.post_response, name='add_response'),
+	path('<int:pk>/response', ResponseCreate.as_view(), name='add_response'),
 
 ]

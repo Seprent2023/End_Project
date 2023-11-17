@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django_filters',
     'ckeditor',
     'ckeditor_uploader',
+    'bootstrap3',
 ]
 
 SITE_ID = 1

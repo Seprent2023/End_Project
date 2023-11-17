@@ -32,6 +32,9 @@
                 <th>Заголовок</th>
                 <th>Время публикации</th>
                 <th>Превью</th>
+                <th>Категория</th>
+                <th>Автор</th>
+
             </tr>
             {% for category in posts %}
             <tr>
@@ -39,15 +42,9 @@
                 <td>{{ category.time_in|date:'d M Y'  }}</td>
                 <td>{{ category.preview }}</td>
                 <td>{{ category.category }}</td>
+                <td>{{ category.to_reg_user }}</td>
                 <td>
-                        {% if perms.PostBoard.change_post %}
-                        <a href="{% url 'post_edit' pk=category.id %}"> Редактировать </a>
-                        {% endif %}
-                </td>
-                <td>
-                    {% if perms.PostBoard.delete_post %}
-                    <a href="{% url 'post_delete' pk=category.id %}"> Удалить </a>
-                    {% endif %}
+                    <a href="{% url 'post_detail' pk=category.id %}"> Просмотр </a>
                 </td>
             </tr>
             {% endfor %}
