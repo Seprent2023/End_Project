@@ -24,5 +24,12 @@ class FlatPageAdmin(FlatPageAdmin):
     )
 
 
+# @admin.register(Response)
+class ResponseAdmin(admin.ModelAdmin):
+    list_display = ('res_user', 'res_post', 'time_in', 'text', 'status')
+    # list_filter = ('accepted', 'created', 'updated')
+    # search_fields = ('author', 'post', 'text')
+
+
 admin.site.unregister(FlatPage)
 admin.site.register(FlatPage, FlatPageAdmin)

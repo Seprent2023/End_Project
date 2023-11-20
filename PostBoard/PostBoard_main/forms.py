@@ -10,10 +10,6 @@ class PostForm(forms.ModelForm):
 
 
 class ResponseForm(forms.ModelForm):
-    parent_response = forms.IntegerField(
-        widget=forms.HiddenInput, required=False
-    )
-
     class Meta:
         model = Response
         fields = ['text']
