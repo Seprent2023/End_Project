@@ -57,6 +57,9 @@ class Response(models.Model):
     def __str__(self):
         return 'Response by {} on {}'. format(self.res_user, self.res_post)
 
+    def get_absolute_url(self):
+        return reverse('post_detail', args=[str(self.res_post.id)])
+
 
 class Subscriptions(models.Model):
     user = models.ForeignKey(
