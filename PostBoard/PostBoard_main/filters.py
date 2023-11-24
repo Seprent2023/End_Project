@@ -22,18 +22,17 @@ class PostFilter(FilterSet):
 
 
 class ResponseFilter(FilterSet):
-    time_in_filter = DateTimeFilter(
-        field_name='time_in',
-        lookup_expr='gt',
-        widget=DateTimeInput(
-            format='%Y-%m-%dT%H:%M',
-            attrs={'type': 'datetime-local'},
-        )
-    )
+    # time_in_filter = DateTimeFilter(
+    #     field_name='time_in',
+    #     lookup_expr='gt',
+    #     widget=DateTimeInput(
+    #         format='%Y-%m-%dT%H:%M',
+    #         attrs={'type': 'datetime-local'},
+    #     )
+    # )
 
     class Meta:
         model = Response
         fields = {
-            'res_user': ['exact'],
             'res_post': ['exact'],
         }

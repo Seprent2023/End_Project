@@ -26,7 +26,7 @@ from ckeditor_uploader.fields import RichTextUploadingField
 class PostsList(ListView):
     raise_exception = True
     model = Posts
-    ordering = '-time_in'
+    ordering = 'time_in'
     template_name = 'posts.html'
     context_object_name = 'posts'
     paginate_by = 20
@@ -35,6 +35,33 @@ class PostsList(ListView):
         context = super().get_context_data(**kwargs)
         context['time_now', 'is_reg'] = datetime.utcnow(), \
             self.request.user.groups.filter(name='Зарегистрированные пользователи').exists()
+        return context
+
+
+class ResponseList(ListView):
+    raise_exception = True
+    model = Response
+    ordering = '-time_in'
+    template_name = 'responses.html'
+    context_object_name = 'responses'
+    paginate_by = 20
+
+    # def post(self, request):
+    #     context = {
+    #         'posts': Posts.objects.filter(to_reg_user=self.request.user)
+    #     }
+    #
+    #     return render(request, 'responses.html', context)
+
+    def get_queryset(self):
+        queryset = Response.objects.filter(res_post__to_reg_user=self.request.user).order_by('-time_in')
+        self.filterset = ResponseFilter(self.request.GET, queryset)
+        return self.filterset.qs
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # context['time_in'] = datetime.utcnow()
+        context['filterset'] = self.filterset
         return context
 
 
@@ -63,71 +90,16 @@ class PostDetail(DetailView):
     context_object_name = 'post'
     response_form = ResponseForm
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     pk = self.kwargs['pk']
-    #     form = ResponseForm()
-    #     resp = get_object_or_404(Response, pk=pk)
-    #     responses = resp.res_post
-    #     context['resp'] = resp
-    #     context['responses'] = responses
-    #     context['form'] = form
-    #     return context
-
-    def post_detail(self, request, response, **kwargs):
-        response = get_object_or_404(Response, id=self.kwargs['res_post'])
-        responses = response.responses.filter(active=True)
-        response_form = ResponseForm
-        return render(request, 'posts/post_detail.html',
-                      {'response': response, 'responses': responses, 'response_form': response_form})
-
-    # def post_detail(self, request, post, **kwargs):
-    #     post = get_object_or_404(Posts, id=self.kwargs['res_post'])
-    #     responses = post.reply.filter(active=True)
-    #
-    #     if request.method == 'POST':
-    #         response_form = ResponseForm(data=request.POST)
-    #         if response_form.is_valid():
-    #             new_response = response_form.save(commit=False)
-    #             new_response.post = post
-    #             new_response.save()
-    #     else:
-    #         response_form = ResponseForm()
-    #     return render(request, 'posts/post_detail.html', {'post': post, 'responses': responses,
-    #     'response_form': response_form})
-
-    # def get(self, request, **kwargs):
-    #     post = get_object_or_404(Posts, id=self.kwargs['post_id'])
-    #     context = {}
-    #     context.update(csrf(request))
-    #     user = auth.get_user(request)
-    #     context = {'responses': post.response_set.all().order_by('path'), 'next': post.get_absolute_url()}
-    #     if user.is_authenticated:
-    #         context['form'] = self.response_form
-    #     return render(template_name=self.template_name, context=context)
-
-
-# @require_http_methods(["POST"])
-# def post_response(request, res_post):
-#     form = ResponseForm(request.POST)
-#     post = get_object_or_404(Posts, id=res_post)
-#
-#     if form.is_valid():
-#         response = Response()
-#         response.path = []
-#         response.res_post = post
-#         response.res_user = auth.get_user(request)
-#         response.text = form.cleaned_data['text']
-#         response.save()
-#         try:
-#             response.path.extend(Posts.objects.get(id=form.cleaned_data['parent_response']).path)
-#             response.path.append(response.id)
-#         except ObjectDoesNotExist:
-#             response.path.append(response.id)
-#
-#         response.save()
-#
-#     return redirect(post.get_absolute_url())
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        pk = self.kwargs['pk']
+        form = ResponseForm()
+        post = get_object_or_404(Posts, pk=pk)
+        responses = post.reply.all()
+        context['post'] = post
+        context['responses'] = responses
+        context['form'] = form
+        return context
 
 
 class PostCreate(CreateView):
@@ -145,9 +117,9 @@ class PostCreate(CreateView):
                 f.to_reg_user_id = self.request.user.id
                 form.save()
                 return redirect(f'/posts/')
-            else :
+            else:
                 return render(request, 'posts/post_create.html', {'form': form})
-        else :
+        else:
             form = PostForm()
             return render(request, 'posts/post_create.html', {'form': form})
 
@@ -158,6 +130,7 @@ class ResponseCreate(CreateView):
     form_class = ResponseForm
     model = Response
     template_name = 'response_create.html'
+    # success_url = res_post.get_absolute_url()
 
     def post(self, request, pk, **kwargs):
         if request.method == 'POST':
@@ -168,7 +141,7 @@ class ResponseCreate(CreateView):
                 f.res_user_id = self.request.user.id
                 f.res_post_id = post_to_res.id
                 form.save()
-                return redirect(f'/posts/')
+                return super().form_valid(form)
             else:
                 return render(request, 'posts/response_create.html', {'form': form})
         else:
