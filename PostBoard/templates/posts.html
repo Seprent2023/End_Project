@@ -2,7 +2,7 @@
 {% extends 'flatpages/default.html' %}
 
 
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
     <title>
@@ -17,6 +17,11 @@
     <h3>Всего новостей: {{ posts|length }}</h3>
 
     <h3> {{ next_sale|default_if_none:"Чуть позже сообщим о новостях!" }} </h3>
+    <button>
+        <a class="nav-link" href="{% url 'responses' %}">
+            <h4><strong>Все отклики</strong></h4>
+        </a>
+    </button>
 
     {% if not is_author %}
     <button>
@@ -46,6 +51,7 @@
                 <td>
                     <a href="{% url 'post_detail' pk=category.id %}"> Просмотр </a>
                 </td>
+
             </tr>
             {% endfor %}
         </table>

@@ -10,7 +10,6 @@
         Post_detail
         {% endblock title%}
     </title>
-    <script src="js/jquery-3.7.1.min.js"></script>
 </head>
 <body>
 {% block content %}
@@ -22,19 +21,19 @@
     <hr>
 <!--    <h2>Отклики</h2>-->
         <h2>
-            Откликов {{ post.render }}
+            Откликов {{ responses.count }}
         </h2>
     {% for response in responses %}
         <div class="response">
             <p class="info">
                 Response {{ forloop.counter }} by {{ response.res_user }}
             </p>
-            {{ response.text|linebreaks }}
+            {{ response.text }}
         </div>
     {% empty %}
         <p>Нет откликов</p>
     {% endfor %}
-    {% if new_response %}
+    {% if f %}
         <h2>Отклик добавлен</h2>
     {% else %}
         <h2>Добавить отклик</h2>
