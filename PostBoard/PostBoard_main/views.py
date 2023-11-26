@@ -46,19 +46,12 @@ class ResponseList(ListView):
     context_object_name = 'responses'
     paginate_by = 20
 
-    # def post(self, request):
-    #     context = {
-    #         'posts': Posts.objects.filter(to_reg_user=self.request.user)
-    #     }
-    #
-    #     return render(request, 'responses.html', context)
-
     def get_queryset(self):
-        queryset = Response.objects.filter(res_post__to_reg_user=self.request.user).order_by('-time_in')
-        self.filterset = ResponseFilter(self.request.GET, queryset)
+        queryset = Response.objects.filter(res_post__to_reg_user=self.request.user.id).order_by('-time_in')
+        self.filterset = ResponseFilter(self.request.GET, queryset, request=self.request.user.id)
         return self.filterset.qs
 
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # context['time_in'] = datetime.utcnow()
         context['filterset'] = self.filterset
