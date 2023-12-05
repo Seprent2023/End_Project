@@ -12,11 +12,16 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os.path
 from pathlib import Path
 
+from ckeditor.configs import DEFAULT_CONFIG
+from ckeditor_uploader.fields import RichTextUploadingField
+
+# from ckeditor.configs import DEFAULT_CONFIG
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-SETTINGS_PATH = os.path.realpath(os.path.dirname(__file__))
-CKEDITOR_UPLOAD_PATH = 'C:/Users/Win10_Game_OS/PycharmProjects/PostBoard/venv/Lib/site-packages/ckeditor/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# SETTINGS_PATH = os.path.realpath(os.path.dirname(__file__))
+# CKEDITOR_UPLOAD_PATH = 'C:/Users/Win10_Game_OS/PycharmProjects/PostBoard/venv/Lib/site-packages/ckeditor/'
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -135,6 +140,52 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [
-    BASE_DIR / "static"
+    os.path.join(BASE_DIR, "staticfiles", "static")
 ]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static/media')
+
+CKEDITOR_UPLOAD_PATH = 'uploads/'
+CKEDITOR_IMAGE_BACKEND = 'pillow'
+CKEDITOR_THUMBNAIL_SIZE = (300, 300)
+CKEDITOR_IMAGE_QUALITY = 40
+CKEDITOR_BROWSE_SHOW_DIRS = True
+CKEDITOR_ALLOW_NONIMAGE_FILES = True
+CKEDITOR_CONFIGS = {
+    'default': DEFAULT_CONFIG,
+    'my-toolbar': {
+        'extraPlugins': ','.join(['image2', 'html5video']),
+        'removePlugins': ','.join(['image']),
+        'codeSnippet_theme': 'xcode',
+        "skin": "moono-lisa",
+        "toolbar_Basic": [["Source", "-", "Bold", "Italic"]],
+        "toolbar_Full": [
+            [
+                "Styles",
+                "Format",
+                "Bold",
+                "Italic",
+                "Underline",
+                "Strike",
+                "SpellChecker",
+                "Undo",
+                "Redo",
+            ],
+            ["Link", "Unlink", "Anchor"],
+            ['Image', 'Upload', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak'],
+            ["TextColor", "BGColor"],
+            ["Smiley", "SpecialChar"],
+            ["Source"],
+        ],
+        "toolbar": "Full",
+        "height": 291,
+        "width": "100%",
+        "filebrowserWindowWidth": 940,
+        "filebrowserWindowHeight": 725,
+    },
+}
+

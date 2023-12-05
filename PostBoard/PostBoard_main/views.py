@@ -26,7 +26,7 @@ from ckeditor_uploader.fields import RichTextUploadingField
 class PostsList(ListView):
     raise_exception = True
     model = Posts
-    ordering = 'time_in'
+    ordering = '-time_in'
     template_name = 'posts.html'
     context_object_name = 'posts'
     paginate_by = 20
@@ -140,6 +140,18 @@ class ResponseCreate(CreateView):
         else:
             form = ResponseForm()
             return render(request, 'posts/response_create.html', {'form': form})
+
+
+class ResponseDelete(DeleteView):
+    raise_exception = True
+    model = Response
+    template_name = 'response_delete.html'
+    success_url = reverse_lazy('responses')
+# def to_response_delete(request, pk):
+#     # response = get_object_or_404(Response, pk=id)
+#     response = Response.objects.filter(id=request.POST.get('id'))
+#     response.delete()
+#     return redirect('responses')
 
 
 class PostUpdate(UpdateView):

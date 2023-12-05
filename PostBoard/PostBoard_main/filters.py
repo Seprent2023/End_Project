@@ -28,6 +28,6 @@ class ResponseFilter(FilterSet):
             'res_post'
         ]
 
-        def __init__(self, *args, **kwargs):
-            super(ResponseFilter, self).__init__(*args, **kwargs)
-            self.filters['res_post'].queryset = Posts.objects.filter(to_reg_user__user_id=self.request.user.id)
+    def __init__(self, *args, **kwargs):
+        super(ResponseFilter, self).__init__(*args, **kwargs)
+        self.filters['res_post'].queryset = Posts.objects.filter(to_reg_user_id=self.request)
