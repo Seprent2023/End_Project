@@ -39,6 +39,11 @@
                     <td>{{ resp.res_user }}</td>
                     <td>{{ resp.text }}</td>
                     <td>{{ resp.status }}</td>
+                    <td>
+                        {% if perms.PostBoard.delete_response %}
+                        <a href="{% url 'response_delete' pk=resp.id %}"> Удалить </a>
+                        {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
         </table>
@@ -73,6 +78,7 @@
             </a>
         {% endif %}
     {% endif %}
+
 
 {% endblock content%}
 </body>
