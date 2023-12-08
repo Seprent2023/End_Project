@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.conf.urls.static import static
-from django.urls import path, include, re_path
+from django.urls import path, include
 
 from django.conf import settings
 
@@ -24,8 +24,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('pages/', include('django.contrib.flatpages.urls')),
     path('posts/', include('PostBoard_main.urls')),
+    path('accounts/', include("allauth.urls")),
     path('ckeditor/', include('ckeditor_uploader.urls')),
-    # re_path(r'^ckeditor/', include('ckeditor_uploader.urls')),
 ] + static(
     settings.STATIC_URL, document_root=settings.STATIC_ROOT
 ) + static(

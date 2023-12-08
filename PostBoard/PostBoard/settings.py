@@ -32,7 +32,7 @@ SECRET_KEY = 'django-insecure-isyoj^zws1(qkv*@eqz31uo$vg%61%e163xx12_zzfba7h#v2g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -46,12 +46,17 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.contrib.flatpages',
+    'PostBoard',
     'PostBoard_main',
     'Accounts',
     'django_filters',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.yandex',
     'ckeditor',
     'ckeditor_uploader',
-    'bootstrap3',
+    # 'bootstrap3',
 ]
 
 SITE_ID = 1
@@ -59,6 +64,7 @@ SITE_ID = 1
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -134,13 +140,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "staticfiles", "static")
@@ -148,6 +147,42 @@ STATICFILES_DIRS = [
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static/media')
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_REDIRECT_URL = '/posts'
+LOGOUT_REDIRECT_URL = '/accounts/login'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+CCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_FORMS = {"signup": "accounts.forms.CustomSignupForm"}
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = "example"
+EMAIL_HOST_PASSWORD = "Gc4HQYnbb4yBqj98"
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+
+DEFAULT_FROM_EMAIL = "example@yandex.ru"
+
+SERVER_EMAIL = "example@yandex.ru"
+MANAGERS = (
+    ('Kage', 'kageydx@yandex.ru'),
+)
+
 
 CKEDITOR_UPLOAD_PATH = 'uploads/'
 CKEDITOR_IMAGE_BACKEND = 'pillow'
@@ -158,10 +193,8 @@ CKEDITOR_ALLOW_NONIMAGE_FILES = True
 CKEDITOR_CONFIGS = {
     'default': DEFAULT_CONFIG,
     'my-toolbar': {
-        'extraPlugins': ','.join(['image2', 'html5video']),
-        'removePlugins': ','.join(['image']),
-        'codeSnippet_theme': 'xcode',
-        "skin": "moono-lisa",
+
+        "skin": "moono",
         "toolbar_Basic": [["Source", "-", "Bold", "Italic"]],
         "toolbar_Full": [
             [
@@ -176,7 +209,7 @@ CKEDITOR_CONFIGS = {
                 "Redo",
             ],
             ["Link", "Unlink", "Anchor"],
-            ['Image', 'Upload', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak'],
+            ['Image', 'Html5video', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak'],
             ["TextColor", "BGColor"],
             ["Smiley", "SpecialChar"],
             ["Source"],
@@ -186,6 +219,9 @@ CKEDITOR_CONFIGS = {
         "width": "100%",
         "filebrowserWindowWidth": 940,
         "filebrowserWindowHeight": 725,
+        'removePlugins': ','.join(['image']),
+        'extraPlugins': ','.join(['image2', 'html5video']),
+        # 'codeSnippet_theme': 'xcode',
     },
 }
 
