@@ -38,7 +38,7 @@ class PostsList(ListView):
         return context
 
 
-class ResponseList(ListView):
+class ResponseList(LoginRequiredMixin, ListView):
     raise_exception = True
     model = Response
     ordering = '-time_in'
@@ -95,7 +95,7 @@ class PostDetail(DetailView):
         return context
 
 
-class PostCreate(CreateView):
+class PostCreate(LoginRequiredMixin, CreateView):
     permission_required = ('PostBoard_main.add_post')
     raise_exception = True
     form_class = PostForm
@@ -117,7 +117,7 @@ class PostCreate(CreateView):
             return render(request, 'posts/post_create.html', {'form': form})
 
 
-class ResponseCreate(CreateView):
+class ResponseCreate(LoginRequiredMixin, CreateView):
     permission_required = ('PostBoard_main.add_response')
     raise_exception = True
     form_class = ResponseForm
@@ -142,7 +142,7 @@ class ResponseCreate(CreateView):
             return render(request, 'posts/response_create.html', {'form': form})
 
 
-class ResponseDelete(DeleteView):
+class ResponseDelete(LoginRequiredMixin, DeleteView):
     raise_exception = True
     model = Response
     template_name = 'response_delete.html'
@@ -154,7 +154,7 @@ class ResponseDelete(DeleteView):
 #     return redirect('responses')
 
 
-class PostUpdate(UpdateView):
+class PostUpdate(LoginRequiredMixin, UpdateView):
     permission_required = ('PostBoard_main.change_post')
     raise_exception = True
     form_class = PostForm
@@ -162,7 +162,7 @@ class PostUpdate(UpdateView):
     template_name = 'post_edit.html'
 
 
-class PostDelete(DeleteView):
+class PostDelete(LoginRequiredMixin, DeleteView):
     raise_exception = True
     model = Posts
     template_name = 'post_delete.html'
