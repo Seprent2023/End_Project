@@ -7,7 +7,7 @@ from datetime import datetime
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
 )
-from .models import Posts, Response
+from .models import Posts, Response, RegUsers
 from .filters import PostFilter, ResponseFilter
 from .forms import PostForm, ResponseForm
 from django.views.decorators.http import require_http_methods
@@ -33,7 +33,7 @@ class PostsList(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['time_now', 'is_reg'] = datetime.utcnow(), \
+        context['time_now', 'is_reg_user'] = datetime.utcnow(), \
             self.request.user.groups.filter(name='Зарегистрированные пользователи').exists()
         return context
 
@@ -105,9 +105,22 @@ class PostCreate(LoginRequiredMixin, CreateView):
     def post(self, request):
         if request.method == 'POST':
             form = PostForm(request.POST or None)
+
             if form.is_valid():
                 f = form.save(commit=False)
-                f.to_reg_user_id = self.request.user.id
+                # users = self.request.user
+                # users = Posts.objects.filter(to_reg_user__reg_user=self.request.user)
+                # reg_user = RegUsers.objects.get(id=users.id)
+                # id_user = User.objects.get(id=reg_user)
+                # reg_user = RegUsers.objects.filter(reg_user_id=self.request.user.id)
+
+
+                # queryset = users.objects.get(reg_user_id=self.request.user.id)
+                # use = self.request.reg_user_id
+                # queryset = get_object_or_404(RegUsers, reg_user=use)
+                to_author = RegUsers.objects.get(reg_user_id=self.request.user.id)
+                # author = Posts.objects.get(to_reg_user_id=to_author.id)
+                f.to_reg_user_id = to_author.id
                 form.save()
                 return redirect(f'/posts/')
             else:
@@ -117,7 +130,7 @@ class PostCreate(LoginRequiredMixin, CreateView):
             return render(request, 'posts/post_create.html', {'form': form})
 
 
-class ResponseCreate(LoginRequiredMixin, CreateView):
+class ResponseCreate(PermissionRequiredMixin, CreateView):
     permission_required = ('PostBoard_main.add_response')
     raise_exception = True
     form_class = ResponseForm
@@ -142,7 +155,8 @@ class ResponseCreate(LoginRequiredMixin, CreateView):
             return render(request, 'posts/response_create.html', {'form': form})
 
 
-class ResponseDelete(LoginRequiredMixin, DeleteView):
+class ResponseDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = ('PostBoard_main.delete_response')
     raise_exception = True
     model = Response
     template_name = 'response_delete.html'
@@ -154,7 +168,29 @@ class ResponseDelete(LoginRequiredMixin, DeleteView):
 #     return redirect('responses')
 
 
-class PostUpdate(LoginRequiredMixin, UpdateView):
+class ResponseAccept(PermissionRequiredMixin, DeleteView):
+    raise_exception = True
+    model = Response
+    template_name = 'response_accept.html'
+    success_url = reverse_lazy('responses')
+
+    def post(self, request, pk, **kwargs):
+        if request.method == 'POST':
+            form = ResponseForm(request.POST or None)
+            # accept_to_res = get_object_or_404(Response, id=pk)
+            if form.is_valid():
+                f = form.save(commit=False)
+                f.status = True
+                form.save()
+                return super().form_valid(form)
+            else:
+                return render(request, 'posts/responses.html', {'form': form})
+        else:
+            form = ResponseForm()
+            return render(request, 'posts/responses.html', {'form': form})
+
+
+class PostUpdate(PermissionRequiredMixin, UpdateView):
     permission_required = ('PostBoard_main.change_post')
     raise_exception = True
     form_class = PostForm
@@ -162,8 +198,19 @@ class PostUpdate(LoginRequiredMixin, UpdateView):
     template_name = 'post_edit.html'
 
 
-class PostDelete(LoginRequiredMixin, DeleteView):
+class PostDelete(PermissionRequiredMixin, DeleteView):
     raise_exception = True
     model = Posts
     template_name = 'post_delete.html'
     success_url = reverse_lazy('posts')
+
+
+@login_required
+def upgrade_user(request):
+    user = request.user
+    group = Group.objects.get(name='Зарегистрированные пользователи')
+    if not user.groups.filter(name='Зарегистрированные пользователи').exists():
+        group.user_set.add(user)
+        RegUsers.objects.create(reg_user=user)
+    return redirect('posts')
+

@@ -38,10 +38,14 @@ class Posts(models.Model):
 
     type_post = models.CharField(max_length=2, choices=TYPE, default='MR')
     time_in = models.DateTimeField(auto_now_add=True)
+    # updated = models.DateTimeField(auto_now=True)  Сюда суется время последнего обновления поста
     headline = models.CharField(max_length=128)
     text = RichTextUploadingField(config_name='my-toolbar')
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category')
-    to_reg_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    to_reg_user = models.ForeignKey(RegUsers, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.headline
 
     def get_absolute_url(self):
         return reverse('post_detail', args=[str(self.id)])
@@ -50,8 +54,12 @@ class Posts(models.Model):
 class Response(models.Model):
     time_in = models.DateTimeField(auto_now_add=True)
     text = models.TextField()
+    # res_user = models.ForeignKey(User, on_delete=models.CASCADE)
     res_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reply_user')
+
+    # res_post = models.ForeignKey(Posts, on_delete=models.CASCADE)
     res_post = models.ForeignKey(Posts, on_delete=models.CASCADE, related_name='reply')
+
     status = models.BooleanField(default=False)
 
     def __str__(self):
