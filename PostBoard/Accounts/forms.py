@@ -4,6 +4,9 @@ from allauth.account.forms import SignupForm
 from django.contrib.auth.models import User, Group
 from django.core.mail import send_mail, mail_managers
 
+from PostBoard_main.models import RegUsers
+
+
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(label='Email')
@@ -25,8 +28,21 @@ class SignUpForm(UserCreationForm):
 class CustomSignupForm(SignupForm):
     def save(self, request):
         user = super().save(request)
+        # mail_managers(
+        #     subject="Новый пользователь!",
+        #     message=f'Пользователь {user.username} зарегистрировался на сайте'
+        # )
+        #
+        # send_mail(
+        #     subject="Вуелкам!",
+        #     message=f'{user.username}, вам удалось каким то чудом зарегистрироваться, поздравляем!',
+        #     from_email=None,
+        #     recipient_list=[user.email],
+        # )
+        #
         common_users = Group.objects.get(name='Зарегистрированные пользователи')
         user.groups.add(common_users)
+        RegUsers.objects.create(reg_user=user)
         return user
 
 
