@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 {% extends 'flatpages/default.html' %}
 
-
 {% block content %}
-<h1>Создание поста</h1>
+<h1>Приём отклика</h1>
 <hr>
 <form action="" method="post">
   {% csrf_token %}
-  {{ form.media }}
-  {{ form.as_p }}
-  <input type="submit" value="Save" />
+  <p>Принять "{{ object.text }}"?</p>
+  <input type="submit" value="Accept" />
 </form>
 {% endblock content %}

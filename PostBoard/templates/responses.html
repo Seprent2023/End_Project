@@ -40,6 +40,11 @@
                     <td>{{ resp.text }}</td>
                     <td>{{ resp.status }}</td>
                     <td>
+                        {% if perms.PostBoard.change_response %}
+                        <a href="{% url 'response_accept' pk=resp.id %}"> Принять </a>
+                        {% endif %}
+                    </td>
+                    <td>
                         {% if perms.PostBoard.delete_response %}
                         <a href="{% url 'response_delete' pk=resp.id %}"> Удалить </a>
                         {% endif %}
@@ -47,10 +52,13 @@
                 </tr>
             {% endfor %}
         </table>
+
     {% else %}
         <h2>Откликов пока нет :(</h2>
     {% endif %}
 
+    <a href="{% url 'posts' %}"> К постам </a>
+    <br>
     {% if page_obj.previous_page_number == 1 %}
     <a href="?page=1">1</a>
     {% endif %}

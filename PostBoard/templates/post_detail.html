@@ -15,7 +15,7 @@
 {% block content %}
     <h1>{{ post.headline }}</h1>
     <h5>{{ post.time_in|date:'d M Y' }}</h5>
-    <h5>{{ post.to_reg_user }}</h5>
+    <h5>{{ post.to_reg_user.reg_user }}</h5>
     <hr>
     <h5>{{ post.text|safe }}</h5>
     <hr>
@@ -44,9 +44,9 @@
         </a>
     </button>
     {% endif %}
-
+    <br>
     <a href="{% url 'posts' %}"> К постам </a>
-    {% if post.to_reg_user_id == user.id %}
+    {% if post.to_reg_user == request.user.username %}
         <br>
         {% if perms.PostBoard.change_post %}
         <a href="{% url 'post_edit' pk=post.id %}"> Редактировать </a>
