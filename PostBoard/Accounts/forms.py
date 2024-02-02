@@ -2,23 +2,18 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from allauth.account.forms import SignupForm
 from django.contrib.auth.models import User, Group
-from django.core.mail import send_mail, mail_managers
+# from django.core.mail import send_mail, mail_managers
 
 from PostBoard_main.models import RegUsers
 
 
-
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(label='Email')
-    first_name = forms.CharField(label='Имя')
-    last_name = forms.CharField(label='Фамилия')
 
     class Meta:
         model = User
         fields = (
             "username",
-            "first_name",
-            "last_name",
             "email",
             "password1",
             "password2",
@@ -43,6 +38,7 @@ class CustomSignupForm(SignupForm):
         common_users = Group.objects.get(name='Зарегистрированные пользователи')
         user.groups.add(common_users)
         RegUsers.objects.create(reg_user=user)
+
         return user
 
 
