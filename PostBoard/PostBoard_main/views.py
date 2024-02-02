@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib import auth
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from datetime import datetime
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
@@ -47,7 +47,7 @@ class ResponseList(LoginRequiredMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        queryset = Response.objects.filter(res_post__to_reg_user=self.request.user.id).order_by('-time_in')
+        queryset = Response.objects.filter(res_post__to_reg_user__reg_user=self.request.user.id).order_by('-time_in')
         self.filterset = ResponseFilter(self.request.GET, queryset, request=self.request.user.id)
         return self.filterset.qs
 
@@ -96,7 +96,7 @@ class PostDetail(DetailView):
 
 
 class PostCreate(LoginRequiredMixin, CreateView):
-    permission_required = ('PostBoard_main.add_post')
+    permission_required = ('PostBoard_main.add_posts')
     raise_exception = True
     form_class = PostForm
     model = Posts
@@ -130,7 +130,7 @@ class PostCreate(LoginRequiredMixin, CreateView):
             return render(request, 'posts/post_create.html', {'form': form})
 
 
-class ResponseCreate(PermissionRequiredMixin, CreateView):
+class ResponseCreate(LoginRequiredMixin, CreateView):
     permission_required = ('PostBoard_main.add_response')
     raise_exception = True
     form_class = ResponseForm
@@ -160,7 +160,12 @@ class ResponseDelete(PermissionRequiredMixin, DeleteView):
     raise_exception = True
     model = Response
     template_name = 'response_delete.html'
-    success_url = reverse_lazy('responses')
+    # success_url = reverse_lazy('posts')
+    # success_url = redirect('posts:post_detail')
+
+    def get_success_url(self):
+        return self.request.GET.get('next', reverse('posts'))
+
 # def to_response_delete(request, pk):
 #     # response = get_object_or_404(Response, pk=id)
 #     response = Response.objects.filter(id=request.POST.get('id'))
@@ -168,30 +173,31 @@ class ResponseDelete(PermissionRequiredMixin, DeleteView):
 #     return redirect('responses')
 
 
-class ResponseAccept(PermissionRequiredMixin, DeleteView):
+class ResponseAccept(PermissionRequiredMixin, UpdateView):
+    permission_required = ('PostBoard_main.change_response')
     raise_exception = True
+    form_class = ResponseForm
     model = Response
+    # fields = '__all__'
     template_name = 'response_accept.html'
     success_url = reverse_lazy('responses')
 
     def post(self, request, pk, **kwargs):
         if request.method == 'POST':
-            form = ResponseForm(request.POST or None)
-            # accept_to_res = get_object_or_404(Response, id=pk)
-            if form.is_valid():
-                f = form.save(commit=False)
-                f.status = True
-                form.save()
-                return super().form_valid(form)
-            else:
-                return render(request, 'posts/responses.html', {'form': form})
+            resp = Response.objects.get(id=pk)
+            resp.status = True
+            resp.save()
+            return redirect(f'/responses/')
         else:
-            form = ResponseForm()
-            return render(request, 'posts/responses.html', {'form': form})
+                # return render(request, 'responses.html', {'form': form})
+            return redirect(f'/responses/')
+
+    def get_success_url(self):
+        return self.request.GET.get('next', reverse('posts'))
 
 
 class PostUpdate(PermissionRequiredMixin, UpdateView):
-    permission_required = ('PostBoard_main.change_post')
+    permission_required = 'PostBoard_main.change_posts'
     raise_exception = True
     form_class = PostForm
     model = Posts
@@ -199,6 +205,7 @@ class PostUpdate(PermissionRequiredMixin, UpdateView):
 
 
 class PostDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = 'PostBoard_main.delete_posts'
     raise_exception = True
     model = Posts
     template_name = 'post_delete.html'
