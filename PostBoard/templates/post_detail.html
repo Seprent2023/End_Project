@@ -19,44 +19,46 @@
     <hr>
     <h5>{{ post.text|safe }}</h5>
     <hr>
-<!--    <h2>Отклики</h2>-->
-        <h2>
-            Откликов {{ responses.count }}
-        </h2>
+    <h1>Отклики</h1>
+    <hr>
+    <h4>
+        Откликов {{ responses.count }}
+    </h4>
     {% for response in responses %}
         <div class="response">
             <p class="info">
                 Response {{ forloop.counter }} by {{ response.res_user }}
             </p>
             {{ response.text }}
-        </div>
+         </div>
+    <br>
     {% empty %}
         <p>Нет откликов</p>
     {% endfor %}
     {% if f %}
         <h2>Отклик добавлен</h2>
     {% else %}
-        <h2>Добавить отклик</h2>
-
+<!--        <h2>Добавить отклик</h2>-->
     <button>
         <a class="nav-link" href="{% url 'add_response' pk=post.id %}">
             <h4><strong>Добавить отклик</strong></h4>
         </a>
     </button>
+    <br>
     {% endif %}
     <br>
     <a href="{% url 'posts' %}"> К постам </a>
-    {% if post.to_reg_user == request.user.username %}
-        <br>
-        {% if perms.PostBoard.change_post %}
-        <a href="{% url 'post_edit' pk=post.id %}"> Редактировать </a>
-        {% endif %}
-        {% if perms.PostBoard.delete_post %}
-        <a href="{% url 'post_delete' pk=post.id %}"> Удалить </a>
-        {% endif %}
-        </br>
+    {% if post.to_reg_user.reg_user == request.user %}
+    <br>
+    {% if perms.PostBoard_main.change_posts %}
+    <a href="{% url 'post_edit' pk=post.id %}"> Редактировать </a>
     {% endif %}
-
+    {% if perms.PostBoard_main.delete_posts %}
+    <a href="{% url 'post_delete' pk=post.id %}"> Удалить </a>
+    {% endif %}
+    <br>
+    <a href="{% url 'responses' %}"> Все отклики </a>
+    {% endif %}
 {% endblock content%}
 </body>
 </html>

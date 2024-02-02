@@ -25,6 +25,11 @@
 
     {% if not is_author %}
     <button>
+        <a class="nav-link" href="{% url 'upgrade' %}">
+            <h4><strong>Зарегистрироваться</strong></h4>
+        </a>
+    </button>
+    <button>
         <a class="nav-link" href="{% url 'post_create' %}">
             <h4><strong>Создать новость</strong></h4>
         </a>
@@ -47,11 +52,10 @@
                 <td>{{ category.time_in|date:'d M Y'  }}</td>
                 <td>{{ category.preview }}</td>
                 <td>{{ category.category }}</td>
-                <td>{{ category.to_reg_user }}</td>
+                <td>{{ category.to_reg_user.reg_user }}</td>
                 <td>
                     <a href="{% url 'post_detail' pk=category.id %}"> Просмотр </a>
                 </td>
-
             </tr>
             {% endfor %}
         </table>

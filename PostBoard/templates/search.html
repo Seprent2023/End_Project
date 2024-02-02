@@ -2,6 +2,7 @@
 {% extends 'flatpages/default.html' %}
 
 {% load custom_tags %}
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -29,10 +30,14 @@
             </tr>
             {% for n in search %}
             <tr>
-                <td>{{ category.headline }}</td>
-                <td>{{ category.time_in|date:'d M Y'  }}</td>
-                <td>{{ category.preview }}</td>
-                <td>{{ category.category }}</td>
+                <td>{{ n.headline }}</td>
+                <td>{{ n.time_in|date:'d M Y'  }}</td>
+                <td>{{ n.preview }}</td>
+                <td>{{ n.category }}</td>
+                <td>{{ n.to_reg_user.reg_user }}</td>
+                <td>
+                    <a href="{% url 'post_detail' pk=n.id %}"> Просмотр </a>
+                </td>
             </tr>
             {% endfor %}
         </table>
@@ -67,6 +72,8 @@
             </a>
         {% endif %}
     {% endif %}
+    <br>
+    <a href="{% url 'posts' %}"> К постам </a>
 
 {% endblock content%}
 </body>

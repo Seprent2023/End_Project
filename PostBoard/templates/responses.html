@@ -40,13 +40,13 @@
                     <td>{{ resp.text }}</td>
                     <td>{{ resp.status }}</td>
                     <td>
-                        {% if perms.PostBoard.change_response %}
-                        <a href="{% url 'response_accept' pk=resp.id %}"> Принять </a>
+                        {% if perms.PostBoard_main.change_response %}
+                        <a href="{% url 'response_accept' pk=resp.id %}?next={{ request.path }}"> Принять </a>
                         {% endif %}
                     </td>
                     <td>
-                        {% if perms.PostBoard.delete_response %}
-                        <a href="{% url 'response_delete' pk=resp.id %}"> Удалить </a>
+                        {% if perms.PostBoard_main.delete_response %}
+                        <a href="{% url 'response_delete' pk=resp.id %}?next={{ request.path }}"> Удалить </a>
                         {% endif %}
                     </td>
                 </tr>
