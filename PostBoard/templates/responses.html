@@ -15,7 +15,7 @@
 {% block content %}
 
     <h1>Все отклики</h1>
-    <h3>Всего откликов: {{ responses|length }}</h3>
+    <h6>Всего откликов: {{ responses|length }}</h6>
 
     <form action="" method="get">
         {{ filterset.form }}
@@ -23,14 +23,14 @@
     </form>
 
     {% if responses %}
-        <table>
-            <tr>
+        <table border="4" bordercolor="#000000" callspacing="0" callpadding="10" frame=Hsides rules=Cols width="100%" align="center">
+            <tr class="header">
                 <th>Пост</th>
                 <th>Время публикации</th>
                 <th>Автор</th>
                 <th>Текст</th>
                 <th>Состояние</th>
-
+                <th>Действия</th>
             </tr>
             {% for resp in responses %}
                 <tr>
@@ -41,13 +41,12 @@
                     <td>{{ resp.status }}</td>
                     <td>
                         {% if perms.PostBoard_main.change_response %}
-                        <a href="{% url 'response_accept' pk=resp.id %}?next={{ request.path }}"> Принять </a>
+                        <a href="{% url 'response_accept' pk=resp.id %}"> Принять </a>
                         {% endif %}
-                    </td>
-                    <td>
                         {% if perms.PostBoard_main.delete_response %}
                         <a href="{% url 'response_delete' pk=resp.id %}?next={{ request.path }}"> Удалить </a>
                         {% endif %}
+                        <hr>
                     </td>
                 </tr>
             {% endfor %}
@@ -56,15 +55,15 @@
     {% else %}
         <h2>Откликов пока нет :(</h2>
     {% endif %}
-
-    <a href="{% url 'posts' %}"> К постам </a>
+    <br>
+    <a href="{% url 'posts' %}"> Верунться к объявлениям </a>
     <br>
     {% if page_obj.previous_page_number == 1 %}
     <a href="?page=1">1</a>
     {% endif %}
     {% if page_obj.previous_page_number != 1 %}
     <a href="?page=1">
-        Начало
+        Сюды
     </a>
     ...
     <a href="?page={{ page_obj.previous_page_number }}">
@@ -82,7 +81,7 @@
         {% if paginator.num_pages != page_obj.next_page_number %}
             ...
             <a href="?page={{ paginator.num_page }}">
-                Конец
+                Туды
             </a>
         {% endif %}
     {% endif %}

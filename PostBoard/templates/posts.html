@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 {% extends 'flatpages/default.html' %}
 
-
 <html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
     <title>
+
         {% block title %}
         Posts
         {% endblock title%}
@@ -13,20 +13,46 @@
 </head>
 <body>
 {% block content %}
-    <h1>Все новости</h1>
-    <h3>Всего новостей: {{ posts|length }}</h3>
 
-    <h3> {{ next_sale|default_if_none:"Чуть позже сообщим о новостях!" }} </h3>
+
+    <h1>Доска объявлений</h1>
+
+    <h6>Всего объявлений: {{ posts|length }}</h6>
+
+    <h3> {{ next_sale|default_if_none:"Объявлений пока нет :(" }} </h3>
+
+    <br>
+
+    <button>
+        <a class="nav-link" href="{% url 'search' %}">
+            <h4><strong>Поиск по объявлениям</strong></h4>
+        </a>
+    </button>
+    <br>
+    <hr>
+    {% if not request.user.is_authenticated %}
+    <button>
+        <a class="nav-link" href="{% url 'account_signup' %}">
+            <h4><strong>Зарегистрироваться</strong></h4>
+        </a>
+    </button>
+    <button>
+        <a class="nav-link" href="{% url 'account_login' %}">
+            <h4><strong>Залогиниться</strong></h4>
+        </a>
+    </button>
+    {% endif %}
+
+    {% if request.user.is_authenticated %}
+
     <button>
         <a class="nav-link" href="{% url 'responses' %}">
             <h4><strong>Все отклики</strong></h4>
         </a>
     </button>
-
-    {% if not is_author %}
     <button>
-        <a class="nav-link" href="{% url 'upgrade' %}">
-            <h4><strong>Зарегистрироваться</strong></h4>
+        <a class="nav-link" href="{% url 'subscriptions' %}">
+            <h4><strong>Подписаться</strong></h4>
         </a>
     </button>
     <button>
@@ -35,24 +61,25 @@
         </a>
     </button>
     {% endif %}
+    <br />
 
     {% if posts %}
-        <table>
-            <tr>
-                <th>Заголовок</th>
-                <th>Время публикации</th>
-                <th>Превью</th>
+
+        <table border="4" bordercolor="#000000" callspacing="0" callpadding="10" frame=Hsides rules=Cols width="100%" align="center">
+            <br />
+            <tr class="header">
                 <th>Категория</th>
                 <th>Автор</th>
-
+                <th>Заголовок</th>
+                <th>Время публикации</th>
+                <th>Действия</th>
             </tr>
             {% for category in posts %}
             <tr>
-                <td>{{ category.headline }}</td>
-                <td>{{ category.time_in|date:'d M Y'  }}</td>
-                <td>{{ category.preview }}</td>
                 <td>{{ category.category }}</td>
                 <td>{{ category.to_reg_user.reg_user }}</td>
+                <td>{{ category.headline }}</td>
+                <td>{{ category.time_in|date:'d M Y'  }}</td>
                 <td>
                     <a href="{% url 'post_detail' pk=category.id %}"> Просмотр </a>
                 </td>
@@ -62,13 +89,13 @@
     {% else %}
         <h2>Новостей нет! Вообще нет!</h2>
     {% endif %}
-
+    <br>
     {% if page_obj.previous_page_number == 1 %}
     <a href="?page=1">1</a>
     {% endif %}
     {% if page_obj.previous_page_number != 1 %}
     <a href="?page=1">
-        Начало
+        Сюды
     </a>
     ...
     <a href="?page={{ page_obj.previous_page_number }}">
@@ -86,11 +113,10 @@
         {% if paginator.num_pages != page_obj.next_page_number %}
             ...
             <a href="?page={{ paginator.num_page }}">
-                Конец
+                Туды
             </a>
         {% endif %}
     {% endif %}
-
 {% endblock content%}
 </body>
 </html>

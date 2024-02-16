@@ -22,19 +22,22 @@
 
     <hr>
     {% if search %}
-        <table>
-            <tr>
+
+        <table border="4" bordercolor="#000000" callspacing="0" callpadding="10" frame=Hsides rules=Cols width="100%" align="center">
+            <br />
+            <tr class="header">
+                <th>Категория</th>
+                <th>Автор</th>
                 <th>Заголовок</th>
                 <th>Время публикации</th>
-                <th>Превью</th>
+                <th>Действия</th>
             </tr>
             {% for n in search %}
             <tr>
-                <td>{{ n.headline }}</td>
-                <td>{{ n.time_in|date:'d M Y'  }}</td>
-                <td>{{ n.preview }}</td>
                 <td>{{ n.category }}</td>
                 <td>{{ n.to_reg_user.reg_user }}</td>
+                <td>{{ n.headline }}</td>
+                <td>{{ n.time_in|date:'d M Y'  }}</td>
                 <td>
                     <a href="{% url 'post_detail' pk=n.id %}"> Просмотр </a>
                 </td>
@@ -42,15 +45,17 @@
             {% endfor %}
         </table>
     {% else %}
-        <h2>Новостей нет! Вообще нет!</h2>
+        <h2>Увы, ничего не нашлось :(</h2>
     {% endif %}
-
+    <br>
+    <a href="{% url 'posts' %}"> Верунться к объявлениям </a>
+    <br>
     {% if page_obj.previous_page_number == 1 %}
     <a href="?{% url_replace page=1 %}">1</a>
     {% endif %}
     {% if page_obj.previous_page_number != 1 %}
     <a href="?{% url_replace page=1 %}">
-        Начало
+        Сюды
     </a>
     ...
     <a href="?page={% url_replace page=page_obj.previous_page_number %}">
@@ -68,12 +73,11 @@
         {% if paginator.num_pages != page_obj.next_page_number %}
             ...
             <a href="?page={% url_replace page=paginator.num_page %}">
-                Конец
+                Туды
             </a>
         {% endif %}
     {% endif %}
-    <br>
-    <a href="{% url 'posts' %}"> К постам </a>
+
 
 {% endblock content%}
 </body>

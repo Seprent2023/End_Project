@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+{% extends 'flatpages/default.html' %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>
+      {% block title %}
+      Вход
+      {% endblock title%}
+    </title>
+</head>
+<body>
+{% block content %}
+    <br>
+    <h2>Добро пожаловать на доску объявления "Какой-то ММО РПГ"!</h2>
+    <h4><a href="{% url 'posts' %}"> На доске </a> вы можете посмотреть объявления.
+        Однако что бы иметь возможность писать объявления или оставлять отклика, вам нужно...</h4>
+    <button>
+        <a class="nav-link" href="{% url 'account_signup' %}">
+            <h4><strong>Зарегистрироваться</strong></h4>
+        </a>
+    </button>
+    <br>
+    <br>
+    <h4>Если у вас уже есть созданный аккаунт то просто...</h4>
+    <button>
+        <a class="nav-link" href="{% url 'account_login' %}">
+            <h4><strong>Залогиньтесь</strong></h4>
+        </a>
+    </button>
+{% endblock content%}
+</body>
+</html>

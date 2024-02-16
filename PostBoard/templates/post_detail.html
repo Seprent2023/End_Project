@@ -1,64 +1,140 @@
 <!DOCTYPE html>
-{% extends 'flatpages/default.html' %}
-{% load bootstrap3 %}
-
-<html lang="en">
+{% load static %}
 <head>
     <meta charset="UTF-8">
-    <title>
-        {% block title %}
-        Post_detail
-        {% endblock title%}
-    </title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Bare - Start Bootstrap Template</title>
+    <style type="text/css">
+        .body {
+        max-width: 1000px;
+        }
+
+        TD {
+        vertical-align: center;
+        padding: 5px;
+        }
+
+        TD#leftcol {
+        float: center;
+        width: 1250px;
+        }
+
+        TD#rightcol {
+        border-left: 1px solid #000;
+        float: center;
+        width: 750px;
+        }
+
+        .line {
+        boeder-left: 1px solid black;
+        <h1>!</h1>
+        }
+
+    </style>
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+
 </head>
 <body>
-{% block content %}
-    <h1>{{ post.headline }}</h1>
-    <h5>{{ post.time_in|date:'d M Y' }}</h5>
-    <h5>{{ post.to_reg_user.reg_user }}</h5>
-    <hr>
-    <h5>{{ post.text|safe }}</h5>
-    <hr>
-    <h1>Отклики</h1>
-    <hr>
-    <h4>
-        Откликов {{ responses.count }}
-    </h4>
-    {% for response in responses %}
-        <div class="response">
-            <p class="info">
-                Response {{ forloop.counter }} by {{ response.res_user }}
-            </p>
-            {{ response.text }}
-         </div>
-    <br>
-    {% empty %}
-        <p>Нет откликов</p>
-    {% endfor %}
-    {% if f %}
-        <h2>Отклик добавлен</h2>
-    {% else %}
-<!--        <h2>Добавить отклик</h2>-->
-    <button>
-        <a class="nav-link" href="{% url 'add_response' pk=post.id %}">
-            <h4><strong>Добавить отклик</strong></h4>
-        </a>
-    </button>
-    <br>
-    {% endif %}
-    <br>
-    <a href="{% url 'posts' %}"> К постам </a>
-    {% if post.to_reg_user.reg_user == request.user %}
-    <br>
-    {% if perms.PostBoard_main.change_posts %}
-    <a href="{% url 'post_edit' pk=post.id %}"> Редактировать </a>
-    {% endif %}
-    {% if perms.PostBoard_main.delete_posts %}
-    <a href="{% url 'post_delete' pk=post.id %}"> Удалить </a>
-    {% endif %}
-    <br>
-    <a href="{% url 'responses' %}"> Все отклики </a>
-    {% endif %}
-{% endblock content%}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+            {% if not request.user.is_authenticated %}
+            <div class="container">
+                <a class="navbar-brand" href="#">Вы вошли как Гость</a>
+            </div>
+                {% endif %}
+                {% if request.user.is_authenticated %}
+            <div class="container">
+                <a class="navbar-brand" href="#">Вы вошли как {{ request.user }}</a>
+            </div>
+            <div>
+                <a class="navbar-brand" href="{% url 'account_logout' %}">Выйти</a>
+            </div>
+                {% endif %}
+    </nav>
+        <table>
+            <tr>
+                <td id="leftcol">
+                    <div class="body">
+                        <table>
+                            <tr>
+                                <th>
+                                    <h4>{{ post.headline }} <br> {{ post.time_in|date:'d M Y' }} <br> от {{ post.to_reg_user.reg_user }}</h4>
+                                </th>
+                            </tr>
+                            <tr>
+                                <td><h5>{{ post.text|safe }}</h5></td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+                <td id="rightcol">
+                    <div class="body">
+                        <table>
+                            <tr>
+                                <th>
+                                    <h4>Отклики (Всего откликов {{ responses.count }})</h4>
+                                </th>
+                                <th></th>
+                            </tr>
+                            <tr>
+                                {% if responses %}
+                                    {% for response in responses %}
+                                        <tr>
+                                            <td>{{ response.text }}
+                                                <br> <strong>от {{ response.res_user }}</strong>
+                                            </td>
+                                            <td>
+                                                {% if perms.PostBoard_main.change_response %}
+                                                <a href="{% url 'response_accept' pk=response.id %}"> Принять </a>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if perms.PostBoard_main.delete_response %}
+                                                <a href="{% url 'response_delete' pk=response.id %}?next={{ request.path }}"> Удалить </a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                <td>
+                                    <h7>Откликов совсем нет</h7>
+                                </td>
+                                {% endif %}
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        </table>
+            <div class="col-lg-12 text-center">
+                <hr>
+                {% if post.to_reg_user.reg_user != request.user %}
+                <button>
+                    <a class="nav-link" href="{% url 'add_response' pk=post.id %}">
+                        <h4><strong>Оставить отклик</strong></h4>
+                    </a>
+                </button>
+                {% endif %}
+                <button>
+                    <a class="nav-link" href="{% url 'responses' %}">
+                        <h4><strong>Посмотреть все отклики</strong></h4>
+                    </a>
+                </button>
+                <br>
+                <br>
+                <a href="{% url 'posts' %}"> Верунться к объявлениям </a>
+                {% if post.to_reg_user.reg_user == request.user %}
+                <br>
+                {% if perms.PostBoard_main.change_posts %}
+                <a href="{% url 'post_edit' pk=post.id %}"> Редактировать объявление</a>
+                {% endif %}
+                <br>
+                {% if perms.PostBoard_main.delete_posts %}
+                <a href="{% url 'post_delete' pk=post.id %}">Удалить объявление</a>
+                {% endif %}
+                {% endif %}
+            </div>
 </body>
 </html>
