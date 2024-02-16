@@ -7,7 +7,7 @@ from datetime import datetime
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
 )
-from .models import Posts, Response, RegUsers
+from .models import Posts, Response, RegUsers, Category, Subscriptions
 from .filters import PostFilter, ResponseFilter
 from .forms import PostForm, ResponseForm
 from django.views.decorators.http import require_http_methods
@@ -178,22 +178,19 @@ class ResponseAccept(PermissionRequiredMixin, UpdateView):
     raise_exception = True
     form_class = ResponseForm
     model = Response
-    # fields = '__all__'
     template_name = 'response_accept.html'
-    success_url = reverse_lazy('responses')
 
     def post(self, request, pk, **kwargs):
         if request.method == 'POST':
             resp = Response.objects.get(id=pk)
             resp.status = True
             resp.save()
-            return redirect(f'/responses/')
+            return redirect(f'responses')
         else:
-                # return render(request, 'responses.html', {'form': form})
-            return redirect(f'/responses/')
+            return redirect(f'responses')
 
-    def get_success_url(self):
-        return self.request.GET.get('next', reverse('posts'))
+    # def get_success_url(self):
+    #     return self.request.GET.get('next', reverse('posts'))
 
 
 class PostUpdate(PermissionRequiredMixin, UpdateView):
@@ -220,4 +217,40 @@ def upgrade_user(request):
         group.user_set.add(user)
         RegUsers.objects.create(reg_user=user)
     return redirect('posts')
+
+
+@login_required
+@csrf_protect
+def subscriptions(request):
+    if request.method == 'POST':
+        category_id = request.POST.get('category_id')
+        category = Category.objects.get(id=category_id)
+
+        action = request.POST.get('action')
+        if action == 'subscribe':
+            Subscriptions.objects.create(user=request.user, to_category=category)
+        elif action == 'unsubscribe':
+            Subscriptions.objects.filter(
+                user=request.user,
+                to_category=category,
+            ).delete()
+
+    categories_with_subscriptions = Category.objects.annotate(
+        user_subscribed=Exists(
+            Subscriptions.objects.filter(
+                user=request.user,
+                to_category=OuterRef('pk'),
+            )
+        )
+    ).order_by('name')
+    return render(
+        request,
+        'subscriptions.html',
+        {'categories': categories_with_subscriptions},
+    )
+
+
+def enter(request):
+    return render(request, 'enter.html')
+
 

@@ -1,6 +1,6 @@
-from django_filters import FilterSet, DateTimeFilter
+from django_filters import FilterSet, DateTimeFilter, CharFilter
 from django.forms import DateTimeInput
-from .models import Posts, Response
+from .models import Posts, Response, Category
 
 
 class PostFilter(FilterSet):
@@ -20,6 +20,10 @@ class PostFilter(FilterSet):
             'category': ['exact'],
         }
 
+    def __init__(self, *args, **kwargs):
+        super(PostFilter, self).__init__(*args, **kwargs)
+        self.filters['category'].queryset = Category.objects.all()
+
 
 class ResponseFilter(FilterSet):
     class Meta:
@@ -30,4 +34,4 @@ class ResponseFilter(FilterSet):
 
     def __init__(self, *args, **kwargs):
         super(ResponseFilter, self).__init__(*args, **kwargs)
-        self.filters['res_post'].queryset = Posts.objects.filter(to_reg_user_id=self.request)
+        self.filters['res_post'].queryset = Posts.objects.filter(to_reg_user_id__reg_user_id=self.request)

@@ -36,13 +36,13 @@ class Posts(models.Model):
         (leather_workers, 'Кожевники'), (potion_masters, 'Зельевары'), (enchanters, 'Мастера заклинаний')
     ]
 
-    type_post = models.CharField(max_length=2, choices=TYPE, default='MR')
-    time_in = models.DateTimeField(auto_now_add=True)
+    type_post = models.CharField(max_length=2, choices=TYPE, default='MR', verbose_name='Время публикации')
+    time_in = models.DateTimeField(auto_now_add=True, verbose_name='Время публикации')
     # updated = models.DateTimeField(auto_now=True)  Сюда суется время последнего обновления поста
-    headline = models.CharField(max_length=128)
-    text = RichTextUploadingField(config_name='my-toolbar')
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category')
-    to_reg_user = models.ForeignKey(RegUsers, on_delete=models.CASCADE)
+    headline = models.CharField(max_length=128, verbose_name='Заголовок')
+    text = RichTextUploadingField(config_name='my-toolbar', verbose_name='Текст')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category', verbose_name='Категория')
+    to_reg_user = models.ForeignKey(RegUsers, on_delete=models.CASCADE, verbose_name='Автор')
 
     def __str__(self):
         return self.headline
@@ -54,12 +54,8 @@ class Posts(models.Model):
 class Response(models.Model):
     time_in = models.DateTimeField(auto_now_add=True)
     text = models.TextField()
-    # res_user = models.ForeignKey(User, on_delete=models.CASCADE)
-    res_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reply_user')
-
-    # res_post = models.ForeignKey(Posts, on_delete=models.CASCADE)
-    res_post = models.ForeignKey(Posts, on_delete=models.CASCADE, related_name='reply')
-
+    res_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reply_user', verbose_name='Автор')
+    res_post = models.ForeignKey(Posts, on_delete=models.CASCADE, related_name='reply', verbose_name='Пост')
     status = models.BooleanField(default=False)
 
     def __str__(self):
