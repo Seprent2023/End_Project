@@ -17,12 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from django.conf.urls.static import static
 from django.urls import path, include
-
 from django.conf import settings
+# from django.account.views.LogoutView import account_logout
+from PostBoard_main import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('pages/', include('django.contrib.flatpages.urls')),
+    path('enter/', views.enter),
     path('posts/', include('PostBoard_main.urls')),
     path('accounts/', include("allauth.urls")),
     path('ckeditor/', include('ckeditor_uploader.urls')),

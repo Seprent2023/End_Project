@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os.path
 from pathlib import Path
-
+from django.urls import reverse_lazy
 from ckeditor.configs import DEFAULT_CONFIG
 from ckeditor_uploader.fields import RichTextUploadingField
 
@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'ckeditor',
     'ckeditor_uploader',
     'bootstrap3',
+    'django_apscheduler'
 ]
 
 SITE_ID = 1
@@ -156,8 +157,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'static/media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
 LOGIN_REDIRECT_URL = '/posts'
-LOGOUT_REDIRECT_URL = '/posts'
+LOGOUT_REDIRECT_URL = '/enter'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
