@@ -41,7 +41,9 @@
                     <td>{{ resp.status }}</td>
                     <td>
                         {% if perms.PostBoard_main.change_response %}
+                        {% if resp.status != True %}
                         <a href="{% url 'response_accept' pk=resp.id %}"> Принять </a>
+                        {% endif %}
                         {% endif %}
                         {% if perms.PostBoard_main.delete_response %}
                         <a href="{% url 'response_delete' pk=resp.id %}?next={{ request.path }}"> Удалить </a>

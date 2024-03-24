@@ -1,0 +1,14 @@
+{% extends 'flatpages/default.html' %}
+
+{% block content %}
+<div class="alert alert-success" role="alert">
+    <h4 class="alert-heading">Электронная почта подтверждена</h4>
+    <p>Ваш адрес электронной почты НАКОНЕЦ ТО! успешно подтвержден. Спасибо за регистрацию!</p>
+</div>
+    <h4>Теперь вы можете перейти к...</h4>
+    <button>
+        <a class="nav-link" href="{% url 'posts' %}">
+            <h4><strong>Постам</strong></h4>
+        </a>
+    </button>
+{% endblock %}

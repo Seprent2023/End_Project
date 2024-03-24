@@ -87,7 +87,9 @@
                                             </td>
                                             <td>
                                                 {% if perms.PostBoard_main.change_response %}
+                                                {% if response.status != True %}
                                                 <a href="{% url 'response_accept' pk=response.id %}"> Принять </a>
+                                                {% endif %}
                                                 {% endif %}
                                             </td>
                                             <td>
