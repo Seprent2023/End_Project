@@ -8,6 +8,7 @@ from ckeditor_uploader.fields import RichTextUploadingField
 
 class RegUsers(models.Model):
     reg_user = models.OneToOneField(User,  on_delete=models.CASCADE)
+    code = models.CharField(max_length=6, blank=True, null=True, default=None)
 
 
 class Category(models.Model):

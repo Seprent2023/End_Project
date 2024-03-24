@@ -1,26 +1,18 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.shortcuts import redirect, render, get_object_or_404
-from django.contrib import auth
 from django.urls import reverse, reverse_lazy
 from datetime import datetime
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
 )
+
 from .models import Posts, Response, RegUsers, Category, Subscriptions
 from .filters import PostFilter, ResponseFilter
 from .forms import PostForm, ResponseForm
-from django.views.decorators.http import require_http_methods
-from django.core.exceptions import ObjectDoesNotExist
-from django.template.context_processors import csrf
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 from django.db.models import Exists, OuterRef
 from django.views.decorators.csrf import csrf_protect
-from django.http import HttpResponse
-from django.views import View
-# from .tasks import hello, printer
-from django.utils.translation import gettext as _
-from ckeditor_uploader.fields import RichTextUploadingField
 
 
 class PostsList(ListView):
@@ -108,18 +100,7 @@ class PostCreate(LoginRequiredMixin, CreateView):
 
             if form.is_valid():
                 f = form.save(commit=False)
-                # users = self.request.user
-                # users = Posts.objects.filter(to_reg_user__reg_user=self.request.user)
-                # reg_user = RegUsers.objects.get(id=users.id)
-                # id_user = User.objects.get(id=reg_user)
-                # reg_user = RegUsers.objects.filter(reg_user_id=self.request.user.id)
-
-
-                # queryset = users.objects.get(reg_user_id=self.request.user.id)
-                # use = self.request.reg_user_id
-                # queryset = get_object_or_404(RegUsers, reg_user=use)
                 to_author = RegUsers.objects.get(reg_user_id=self.request.user.id)
-                # author = Posts.objects.get(to_reg_user_id=to_author.id)
                 f.to_reg_user_id = to_author.id
                 form.save()
                 return redirect(f'/posts/')
@@ -136,7 +117,7 @@ class ResponseCreate(LoginRequiredMixin, CreateView):
     form_class = ResponseForm
     model = Response
     template_name = 'response_create.html'
-    # success_url = res_post.get_absolute_url()
+
 
     def post(self, request, pk, **kwargs):
         if request.method == 'POST':
@@ -160,17 +141,10 @@ class ResponseDelete(PermissionRequiredMixin, DeleteView):
     raise_exception = True
     model = Response
     template_name = 'response_delete.html'
-    # success_url = reverse_lazy('posts')
-    # success_url = redirect('posts:post_detail')
+
 
     def get_success_url(self):
         return self.request.GET.get('next', reverse('posts'))
-
-# def to_response_delete(request, pk):
-#     # response = get_object_or_404(Response, pk=id)
-#     response = Response.objects.filter(id=request.POST.get('id'))
-#     response.delete()
-#     return redirect('responses')
 
 
 class ResponseAccept(PermissionRequiredMixin, UpdateView):
@@ -188,9 +162,6 @@ class ResponseAccept(PermissionRequiredMixin, UpdateView):
             return redirect(f'responses')
         else:
             return redirect(f'responses')
-
-    # def get_success_url(self):
-    #     return self.request.GET.get('next', reverse('posts'))
 
 
 class PostUpdate(PermissionRequiredMixin, UpdateView):

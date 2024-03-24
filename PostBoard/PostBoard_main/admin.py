@@ -3,6 +3,8 @@ from .models import Posts, Category, Response, RegUsers
 from django.contrib.flatpages.admin import FlatPageAdmin
 from django.contrib.flatpages.models import FlatPage
 from django.utils.translation import gettext_lazy as _
+from ckeditor_uploader.widgets import CKEditorUploadingWidget
+from django import forms
 
 
 admin.site.register(Posts)
